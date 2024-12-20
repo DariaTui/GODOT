@@ -1,0 +1,103 @@
+[gd_scene load_steps=9 format=3 uid="uid://bhk4xgc37mkdl"]
+
+[ext_resource type="Script" path="res://ghosts.gd" id="1_7errk"]
+[ext_resource type="PackedScene" uid="uid://cilr7dkrbwqd1" path="res://Characters/ghosts/stylized_ghost.glb" id="1_b3lfy"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_kq6yk"]
+
+[sub_resource type="Animation" id="Animation_as88s"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0.274724, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_4181r"]
+resource_name = "fly"
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5, 1),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 0.274724, 0), Vector3(0, 0.530845, 0), Vector3(0, 0.274724, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_nou00"]
+_data = {
+"RESET": SubResource("Animation_as88s"),
+"fly": SubResource("Animation_4181r")
+}
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_621ma"]
+height = 1.36944
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_qlehj"]
+viewport_path = NodePath("Sprite3D/SubViewport")
+
+[node name="ghost" type="CharacterBody3D" groups=["enemies"]]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0.274724, 0)
+script = ExtResource("1_7errk")
+
+[node name="Sketchfab_Scene" parent="." instance=ExtResource("1_b3lfy")]
+transform = Transform3D(-0.0543227, 0, 0.998524, 0, 1, 0, -0.998524, 0, -0.0543227, 0, 0.88668, 0)
+
+[node name="HitPlayerArea" type="Area3D" parent="."]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0.488776, 0.0738938)
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HitPlayerArea"]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_kq6yk")
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
+path_height_offset = -2.0
+navigation_layers = 3
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_nou00")
+}
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(2, 0, 0, 0, 2.75121, 0, 0, 0, 2, 0, -0.0228038, 0)
+shape = SubResource("CapsuleShape3D_621ma")
+
+[node name="faceDirection" type="Node3D" parent="."]
+
+[node name="Timer" type="Timer" parent="."]
+
+[node name="Node3D" type="Node3D" parent="."]
+
+[node name="Sprite3D" type="Sprite3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.52022, 0)
+visible = false
+flip_h = true
+billboard = 1
+texture = SubResource("ViewportTexture_qlehj")
+
+[node name="SubViewport" type="SubViewport" parent="Sprite3D"]
+size = Vector2i(320, 27)
+
+[node name="ProgressBar" type="ProgressBar" parent="Sprite3D/SubViewport"]
+modulate = Color(0.859078, 0.776276, 0.0887092, 1)
+offset_right = 320.0
+offset_bottom = 27.0
+step = 1.0
+value = 100.0
+
+[connection signal="body_entered" from="HitPlayerArea" to="." method="_on_hit_player_area_body_entered"]
